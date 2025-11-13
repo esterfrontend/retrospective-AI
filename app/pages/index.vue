@@ -1,111 +1,189 @@
 <template>
   <div class="container">
-    <header>
-      <h1>Bienvenido a Nuxt</h1>
-      <p>Proyecto base creado con Nuxt 4</p>
-    </header>
-    
-    <main>
-      <section class="info">
-        <h2>🚀 Proyecto listo para desarrollar</h2>
-        <p>Este es un proyecto base de Nuxt configurado con:</p>
-        <ul>
-          <li>Nuxt 4</li>
-          <li>Vue 3</li>
-          <li>TypeScript</li>
-          <li>pnpm</li>
-        </ul>
-      </section>
-      
-      <section class="actions">
-        <h3>Comandos disponibles:</h3>
-        <div class="commands">
-          <code>pnpm dev</code> - Iniciar servidor de desarrollo
-          <code>pnpm build</code> - Construir para producción
-          <code>pnpm preview</code> - Previsualizar build de producción
-        </div>
-      </section>
-    </main>
+    <h1>Retrospective AI</h1>
+    <div class="cards-container">
+      <div class="card">
+        <h2 class="subtitle">Accede a una retrospectiva</h2>
+        
+        <form @submit.prevent="handleSubmit" class="form">
+          <input
+            v-model="userName"
+            type="text"
+            placeholder="Tu nombre"
+            required
+            autofocus
+            class="input-field"
+          />
+          <input
+            v-model="userEmail"
+            type="text"
+            placeholder="Tu email"
+            required
+            autofocus
+            class="input-field"
+          />
+          <input
+            v-model="retrospectiveID"
+            type="text"
+            placeholder="Id de la retrospectiva"
+            required
+            class="input-field"
+          />
+        
+          <button type="submit" class="submit-button" :disabled="buttonDisabled">
+            Entrar
+          </button>
+        </form>
+      </div>
+      <div class="card">
+
+        <h2 class="subtitle">Crea una nueva retrospectiva</h2>
+        <form @submit.prevent="handleCreateRetrospective" class="form">
+          <input
+            v-model="creatorName"
+            type="text"
+            placeholder="Tu nombre"
+            required
+            autofocus
+            class="input-field"
+          />
+          <input
+            v-model="creatorEmail"
+            type="text"
+            placeholder="Tu email"
+            required
+            autofocus
+            class="input-field"
+          />
+          <button type="submit" class="submit-button">
+            Crear
+          </button>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
+<script setup lang="ts">
+const userName = ref('')
+const userEmail = ref('')
+const retrospectiveID = ref('')
+
+const creatorName = ref('')
+const creatorEmail = ref('')
+
+const buttonDisabled = computed(() => {
+  return !userName.value.trim() || !userEmail.value.trim() || !retrospectiveID.value.trim()
+})
+
+const handleSubmit = () => {
+  if (userName.value.trim() && userEmail.value.trim() && retrospectiveID.value.trim()) {
+    navigateTo(`/retrospective?name=${userName.value.trim()}&email=${userEmail.value.trim()}&id=${retrospectiveID.value.trim()}`)
+  }
+}
+
+const handleCreateRetrospective = () => {
+  if (creatorName.value.trim() && creatorEmail.value.trim()) {
+    navigateTo(`/create-retrospective?name=${creatorName.value.trim()}&email=${creatorEmail.value.trim()}`)
+  }
+}
+
+</script>
+
 <style scoped>
 .container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-family: system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #9aaae5 0%, #b390d9 100%);
+  padding: 5rem;
 }
 
-header {
-  text-align: center;
-  margin-bottom: 3rem;
-}
-
-header h1 {
-  font-size: 2.5rem;
-  color: #00dc82;
-  margin-bottom: 0.5rem;
-}
-
-header p {
-  font-size: 1.2rem;
-  color: #666;
-}
-
-main {
+.cards-container {
   display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  align-items: stretch;
+  justify-content: center;
+  gap: 5rem;
+  padding: 1rem;
 }
 
-section {
-  background: #f5f5f5;
-  padding: 1.5rem;
-  border-radius: 8px;
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 3rem;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
-section h2 {
-  margin-top: 0;
-  color: #333;
+h1 {
+  text-align: center;
+  color: #fff;
+  font-size: 2rem;
+  margin-bottom: 5rem;
+  font-weight: 700;
 }
 
-section h3 {
-  margin-top: 0;
-  color: #555;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-}
-
-ul li {
-  padding: 0.5rem 0;
-  padding-left: 1.5rem;
-  position: relative;
-}
-
-ul li::before {
-  content: "✓";
-  position: absolute;
-  left: 0;
-  color: #00dc82;
+.subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 2rem;
+  font-size: 1.2rem;
   font-weight: bold;
 }
 
-.commands {
+.form {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-code {
-  background: #1e1e1e;
-  color: #d4d4d4;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-family: 'Courier New', monospace;
-  display: inline-block;
+.input-group {
+  width: 100%;
+}
+
+.input-field {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.input-field::placeholder {
+  color: #999;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 0.875rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.submit-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>

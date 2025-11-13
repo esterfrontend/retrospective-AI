@@ -2,7 +2,7 @@ import Board, { type IBoard } from '~/models/Board'
 import mongoose from 'mongoose'
 
 export default defineEventHandler(async (event) => {
-  const boardId: string = event.context.params.id
+  const boardId = event.context.params.id
 
   if (!mongoose.Types.ObjectId.isValid(boardId))
     throw createError({ statusCode: 400, statusMessage: 'Invalid board ID' })

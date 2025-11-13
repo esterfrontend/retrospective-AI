@@ -1,50 +1,44 @@
 <template>
-  <div class="retrospective-container">
-    <div class="retrospective-card">
-      <h2 class="subtitle">Retrospective wisdom</h2>
-      <p class="description">
-        Hello <strong>{{ userName }}</strong
-        >, share information about your team and sprint. This will be used to
-        suggest the best retrospective dynamic tailored to your context.
-      </p>
-
-      <form @submit.prevent="handleSubmit" class="retrospective-form">
-        <div class="input-group">
-          <label for="team-description" class="label">
-            Describe your team and sprint
-          </label>
-          <textarea
-            id="team-description"
-            v-model="retrospectiveDescription"
-            placeholder="E.g., We are a team of 5 developers working on a fintech product. Our last sprint was 2 weeks long. We successfully delivered the payment integration feature, but struggled with some technical debt that slowed us down..."
-            required
-            autofocus
-            class="textarea-field"
-            rows="5"
-          />
-          <div class="example-section">
-            <p class="example-hint">
-              <strong>Tip:</strong> Include team size, sprint duration,
-              achievements, and challenges
-            </p>
-          </div>
+  <div class="card">
+    <h2 class="subtitle">Retrospective wisdom</h2>
+    <p class="description">
+      Share information about your team and sprint. This will be used to suggest
+      the best retrospective dynamic tailored to your context.
+    </p>
+    <div class="form">
+      <div class="test-section">
+        <label for="team-description" class="label">
+          Describe your team and sprint
+        </label>
+        <textarea
+          id="team-description"
+          v-model="geminiPrompt"
+          placeholder="E.g., We are a team of 5 developers working on a fintech product. Our last sprint was 2 weeks long. We successfully delivered the payment integration feature, but struggled with some technical debt that slowed us down..."
+          class="textarea-field"
+          rows="5"
+        />
+        <div class="example-section">
+          <p class="example-hint">
+            <strong>Tip:</strong> Include team size, sprint duration,
+            achievements, and challenges
+          </p>
         </div>
-
         <button
-          type="submit"
-          class="submit-button"
-          :disabled="isLoading || !retrospectiveDescription.trim()"
+          type="button"
+          @click="handleTestGemini"
+          class="test-button"
+          :disabled="isLoading || !geminiPrompt.trim()"
         >
-          {{ isLoading ? "Loading..." : "Create retrospective" }}
+          {{ isLoading ? "Loading..." : "Test Gemini API" }}
         </button>
-      </form>
+      </div>
 
       <div v-if="error" class="error-message">
         <strong>Error:</strong> {{ error }}
       </div>
 
       <div v-if="geminiResponse" class="response-container">
-        <h4 class="response-title">Retrospective Suggestion:</h4>
+        <h4 class="response-title">Gemini Response:</h4>
         <div v-if="geminiResponse.data" class="structured-response">
           <div class="response-field">
             <strong>Retro Type:</strong>
@@ -107,7 +101,7 @@
             type="button"
             @click="handleRegenerate"
             class="action-button regenerate-button"
-            :disabled="isLoading || !retrospectiveDescription.trim()"
+            :disabled="isLoading || !geminiPrompt.trim()"
           >
             {{ isLoading ? "Loading..." : "Regenerate" }}
           </button>
@@ -126,22 +120,23 @@
 </template>
 
 <script setup lang="ts">
-const route = useRoute();
-const userName = ref((route.query.name as string) || "User");
-const retrospectiveDescription = ref("");
+const geminiPrompt = ref("");
 
 const { geminiResponse, error, isLoading, fetchGeminiRetrospective } =
   useGeminiApi();
 
-const handleSubmit = async () => {
-  if (retrospectiveDescription.value.trim()) {
-    await fetchGeminiRetrospective(retrospectiveDescription.value);
+const exampleText =
+  "We are a team of 5 developers working on a fintech product. Our last sprint was 2 weeks long. We successfully delivered the payment integration feature and improved our CI/CD pipeline. However, we struggled with some technical debt that slowed us down, and we had some communication issues between frontend and backend teams.";
+
+const handleTestGemini = async () => {
+  if (geminiPrompt.value.trim()) {
+    await fetchGeminiRetrospective(geminiPrompt.value);
   }
 };
 
 const handleRegenerate = async () => {
-  if (retrospectiveDescription.value.trim()) {
-    await fetchGeminiRetrospective(retrospectiveDescription.value);
+  if (geminiPrompt.value.trim()) {
+    await fetchGeminiRetrospective(geminiPrompt.value);
   }
 };
 
@@ -151,21 +146,12 @@ const handleAccept = () => {
 </script>
 
 <style scoped>
-.retrospective-container {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #9aaae5 0%, #b390d9 100%);
-  padding: 2rem 1rem;
-}
-
-.retrospective-card {
+.card {
   background: white;
   border-radius: 16px;
   padding: 3rem;
   width: 100%;
-  max-width: 800px;
+  max-width: 600px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
@@ -186,27 +172,48 @@ const handleAccept = () => {
   padding: 0 1rem;
 }
 
-.description strong {
-  color: #667eea;
-  font-weight: 600;
-}
-
-.retrospective-form {
+.form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.5rem;
 }
 
-.input-group {
+.test-section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.test-section:last-of-type {
+  border-bottom: none;
+}
+
+.test-button {
   width: 100%;
-}
-
-.label {
-  display: block;
-  color: #333;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.test-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(72, 187, 120, 0.3);
+}
+
+.test-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.test-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .textarea-field {
@@ -231,8 +238,42 @@ const handleAccept = () => {
   color: #999;
 }
 
+.label {
+  display: block;
+  color: #333;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
 .example-section {
   margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.example-button {
+  padding: 0.5rem 1rem;
+  background: #f0f0f0;
+  color: #667eea;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.example-button:hover:not(:disabled) {
+  background: #e8e8e8;
+  border-color: #667eea;
+}
+
+.example-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .example-hint {
@@ -247,33 +288,6 @@ const handleAccept = () => {
   font-weight: 600;
 }
 
-.submit-button {
-  width: 100%;
-  padding: 0.875rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.submit-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-}
-
-.submit-button:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.submit-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .error-message {
   background: #fee;
   border: 1px solid #fcc;
@@ -285,7 +299,7 @@ const handleAccept = () => {
 }
 
 .response-container {
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   background: #f5f5f5;
   border-radius: 8px;
   padding: 1rem;

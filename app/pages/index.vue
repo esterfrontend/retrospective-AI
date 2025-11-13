@@ -4,7 +4,7 @@
     <div class="cards-container">
       <div class="card">
         <h2 class="subtitle">Accede a una retrospectiva</h2>
-        
+
         <form @submit.prevent="handleSubmit" class="form">
           <input
             v-model="userName"
@@ -29,14 +29,17 @@
             required
             class="input-field"
           />
-        
-          <button type="submit" class="submit-button" :disabled="buttonDisabled">
+
+          <button
+            type="submit"
+            class="submit-button"
+            :disabled="buttonDisabled"
+          >
             Entrar
           </button>
         </form>
       </div>
       <div class="card">
-
         <h2 class="subtitle">Crea una nueva retrospectiva</h2>
         <form @submit.prevent="handleCreateRetrospective" class="form">
           <input
@@ -55,9 +58,7 @@
             autofocus
             class="input-field"
           />
-          <button type="submit" class="submit-button">
-            Crear
-          </button>
+          <button type="submit" class="submit-button">Crear</button>
         </form>
       </div>
     </div>
@@ -65,29 +66,40 @@
 </template>
 
 <script setup lang="ts">
-const userName = ref('')
-const userEmail = ref('')
-const retrospectiveID = ref('')
+const userName = ref("");
+const userEmail = ref("");
+const retrospectiveID = ref("");
 
-const creatorName = ref('')
-const creatorEmail = ref('')
+const creatorName = ref("");
+const creatorEmail = ref("");
 
 const buttonDisabled = computed(() => {
-  return !userName.value.trim() || !userEmail.value.trim() || !retrospectiveID.value.trim()
-})
+  return (
+    !userName.value.trim() ||
+    !userEmail.value.trim() ||
+    !retrospectiveID.value.trim()
+  );
+});
 
 const handleSubmit = () => {
-  if (userName.value.trim() && userEmail.value.trim() && retrospectiveID.value.trim()) {
-    navigateTo(`/retrospective?name=${userName.value.trim()}&email=${userEmail.value.trim()}&id=${retrospectiveID.value.trim()}`)
+  if (
+    userName.value.trim() &&
+    userEmail.value.trim() &&
+    retrospectiveID.value.trim()
+  ) {
+    navigateTo(
+      `/retrospective?name=${userName.value.trim()}&email=${userEmail.value.trim()}&id=${retrospectiveID.value.trim()}`
+    );
   }
-}
+};
 
 const handleCreateRetrospective = () => {
   if (creatorName.value.trim() && creatorEmail.value.trim()) {
-    navigateTo(`/create-retrospective?name=${creatorName.value.trim()}&email=${creatorEmail.value.trim()}`)
+    navigateTo(
+      `/create-retrospective?name=${creatorName.value.trim()}&email=${creatorEmail.value.trim()}`
+    );
   }
-}
-
+};
 </script>
 
 <style scoped>
@@ -101,8 +113,9 @@ const handleCreateRetrospective = () => {
   display: flex;
   align-items: stretch;
   justify-content: center;
-  gap: 5rem;
+  gap: 2rem;
   padding: 1rem;
+  flex-wrap: wrap;
 }
 
 .card {

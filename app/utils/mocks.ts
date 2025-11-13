@@ -1,10 +1,11 @@
 import type { GeminiResponse, GeminiSummaryResponse } from "~/models/gemini";
+import { RETRO_TYPES } from "~/models/retrospective";
 
 export const getMockGeminiResponse = (): GeminiResponse => {
   return {
     success: true,
     data: {
-      retroType: "columns",
+      retroType: RETRO_TYPES.COLUMNS,
       columns: [
         {
           id: "start",

@@ -148,6 +148,7 @@ const handleAccept = () => {};
 
 <style scoped>
 .card {
+  margin: 0 auto;
   background: white;
   border-radius: 16px;
   padding: 3rem;

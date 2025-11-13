@@ -46,6 +46,7 @@ onMounted(() => {
 }
 
 .summary-content {
+  justify-items: center;
   background: white;
   border-radius: 16px;
   padding: 3rem;
@@ -56,6 +57,7 @@ onMounted(() => {
 
 .summary-content > h1,
 .summary-content > p {
+  align-self: center;
   text-align: center;
 }
 

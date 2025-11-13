@@ -27,13 +27,13 @@
               v-model="note.content"
               class="note-content"
               placeholder="New note..."
-              @focus="handleNoteContentFocus(note)"
               rows="3"
             />
             <button
               class="note-delete"
               @click="removeNote(note.id)"
               aria-label="Delete note"
+              v-if="note.user === userStore.getName"
             >
               ×
             </button>
@@ -57,6 +57,7 @@
 </template>
 
 <script setup lang="ts">
+import type { IBoard } from "~/models/Board";
 import type { RetroColumn, RetroNote } from "~/models/retrospective";
 import { getMockGeminiResponse } from "~/utils/mocks";
 
@@ -69,22 +70,21 @@ type Note = {
   user: string;
 };
 
-type Props = {
-  columns: RetroColumn[];
-};
-
-const props = defineProps<Props>();
+const { board } = defineProps<{
+  board: IBoard;
+}>();
 
 const quadrants = computed(() => {
-  if (props.columns.length >= 4) {
-    return props.columns.slice(0, 4);
+  const columns = board.columns;
+  if (columns?.length >= 4) {
+    return columns.slice(0, 4);
   }
   const mockResponse = getMockGeminiResponse();
   const mockColumns = mockResponse.data?.columns || [];
 
   const defaultQuadrants: RetroColumn[] = [
     ...mockColumns,
-    ...(mockColumns.length < 4
+    ...(mockColumns?.length < 4
       ? [
           {
             id: "action-items",
@@ -113,16 +113,30 @@ const getNotesForQuadrant = (columnId: string): Note[] => {
   return notes.value.filter((note) => note.columnId === columnId);
 };
 
-const addNote = (columnId: string): void => {
+const addNote = async (columnId: string): Promise<void> => {
   const newNote: Note = {
     id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     columnId,
     content: "",
     user: userStore.getName,
   };
+
+  // TODO
+  // should be after the api call
   notes.value.push(newNote);
 
-  // Focus on the note content for editing
+  try {
+    await retrospectiveStore.addNote({
+      id: newNote.id,
+      columnId: newNote.columnId,
+      userId: newNote.user,
+      content: newNote.content,
+      createdAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("[addNote]", error);
+  }
+
   nextTick(() => {
     const noteElement = noteRefs.value.get(newNote.id);
     if (noteElement) {
@@ -141,15 +155,10 @@ const removeNote = (noteId: string): void => {
   noteRefs.value.delete(noteId);
 };
 
-const handleNoteContentFocus = (note: Note): void => {
-  // Focus handler - can be used for additional logic if needed
-};
-
 const retrospectiveStore = useRetrospectiveStore();
 const router = useRouter();
 
 const handleLogNotes = (): void => {
-  // Map notes to RetroNote format
   const retroNotes: RetroNote[] = notes.value.map((note) => ({
     id: note.id,
     columnId: note.columnId,
@@ -158,10 +167,8 @@ const handleLogNotes = (): void => {
     createdAt: new Date().toISOString(),
   }));
 
-  // Save notes to store
   retrospectiveStore.setNotes(retroNotes);
 
-  // Redirect to summary page
   router.push("/summary");
 };
 </script>

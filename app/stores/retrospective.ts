@@ -24,6 +24,22 @@ export const useRetrospectiveStore = defineStore("retrospective", {
       this.notes = notes;
     },
 
+    async fetchBoard(boardId: string): Promise<void> {
+      const { getBoardById } = useMongodbApi();
+      const response = await getBoardById(boardId);
+      if (response.success) {
+        this.setCurrent(response.board as unknown as IBoard);
+      }
+    },
+
+    async addNote(note: RetroNote): Promise<void> {
+      const { createPost } = useMongodbApi();
+      const response = await createPost(this.current?.id as string, note);
+      if (response.success) {
+        this.notes.push(response.note as unknown as RetroNote);
+      }
+    },
+
     clear(): void {
       this.current = null;
       this.notes = [];

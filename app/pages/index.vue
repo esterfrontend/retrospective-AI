@@ -3,12 +3,12 @@
     <h1>Retrospective AI</h1>
     <div class="cards-container">
       <div class="card">
-        <h2 class="subtitle">Accede a una retrospectiva</h2>
+        <h2 class="subtitle">Existing retrospective</h2>
         <form @submit.prevent="handleSubmit" class="form">
           <input
             v-model="userName"
             type="text"
-            placeholder="Tu nombre"
+            placeholder="Your name"
             required
             autofocus
             class="input-field"
@@ -16,7 +16,7 @@
           <input
             v-model="userEmail"
             type="text"
-            placeholder="Tu email"
+            placeholder="Your email"
             required
             autofocus
             class="input-field"
@@ -24,7 +24,7 @@
           <input
             v-model="retrospectiveID"
             type="text"
-            placeholder="Id de la retrospectiva"
+            placeholder="Retrospective ID"
             required
             class="input-field"
           />
@@ -34,17 +34,17 @@
             class="submit-button"
             :disabled="buttonDisabled"
           >
-            Entrar
+            Enter
           </button>
         </form>
       </div>
       <div class="card">
-        <h2 class="subtitle">Crea una nueva retrospectiva</h2>
+        <h2 class="subtitle">Create a new retrospective</h2>
         <form @submit.prevent="handleCreateRetrospective" class="form">
           <input
             v-model="creatorName"
             type="text"
-            placeholder="Tu nombre"
+            placeholder="Your name"
             required
             autofocus
             class="input-field"
@@ -52,12 +52,12 @@
           <input
             v-model="creatorEmail"
             type="text"
-            placeholder="Tu email"
+            placeholder="Your email"
             required
             autofocus
             class="input-field"
           />
-          <button type="submit" class="submit-button">Crear</button>
+          <button type="submit" class="submit-button">Create</button>
         </form>
       </div>
     </div>
@@ -65,11 +65,14 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from '~/stores/user'
-import { useMongodbApi } from '~/composables/useMongodbApi';
+import { useUserStore } from "~/stores/user";
+import { useMongodbApi } from "~/composables/useMongodbApi";
 
-const userName = ref("");
-const userEmail = ref("");
+const userStore = useUserStore();
+
+const userName = ref(userStore.getName);
+const userEmail = ref(userStore.getEmail);
+
 const retrospectiveID = ref("");
 
 const creatorName = ref("");
@@ -91,30 +94,29 @@ const handleSubmit = async () => {
   const boardId = retrospectiveID.value.trim();
 
   if (!name || !email || !boardId) {
-    alert('Please fill in all fields')
-    return
+    alert("Please fill in all fields");
+    return;
   }
 
   const userData = {
     name,
     email,
+  };
+
+  if (userStore.getName !== name || userStore.getEmail !== email) {
+    userStore.setUserData({ name, email });
   }
 
-  useUserStore().setUserData(userData)
-    
-
   try {
-    const res = await joinBoard(boardId, { name, email })
-    
-    if (res.success) {
-      navigateTo(`/retrospective-types/columns?id=${boardId}`)
-      return
-    }
+    const res = await joinBoard(boardId, { name, email });
 
-    console.warn('Error joining board:', res.message)
+    if (res.success) {
+      navigateTo(`/retro?id=${boardId}`);
+      return;
+    }
   } catch (err: any) {
-    console.error('[handleSubmit]', err)
-    alert('Error joining board. Please try again later.')
+    console.error("[handleSubmit]", err);
+    alert("Error joining board. Please try again later.");
   }
 };
 

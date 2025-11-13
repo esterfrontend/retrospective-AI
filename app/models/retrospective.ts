@@ -19,11 +19,11 @@ export type RetroMetadata = {
 };
 
 export type RetrospectiveResponse = {
-  retoType: RetroType;
+  retroType: RetroType;
   columns: RetroColumn[];
   instructions: string;
   suggestions: string;
-  metadata: RetroMetadata;
+  metadata?: RetroMetadata;
 };
 
 export type RetroNote = {

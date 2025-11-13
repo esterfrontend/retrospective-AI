@@ -1,6 +1,6 @@
 <template>
-  <div class="retrospective-container">   
-      <div v-for="column in typeColumnsMock.data.notes" :key="column.id" :class="['retrospective-column', `column-${column.id}`]">
+  <div class="retrospective-container">  
+      <div v-for="column in typeColumnsMock.columns" :key="column.id" :class="['retrospective-column', `column-${column.id}`]">
         <form @submit.prevent="handleSubmit" class="retrospective-form">
           <h2 class="column-title" :style="{ 'color': column.color }">{{ column.label }}</h2>
           <p class="column-description">{{ column.description }}</p>
@@ -97,7 +97,7 @@ const handleSubmit = async () => {
       )
       
       if (res.success) {
-        navigateTo(`/retrospective?id=${retrospectiveID.value}`)
+        navigateTo(`/retrospective-types/columns?id=${retrospectiveID.value}`)
         return
       }
 

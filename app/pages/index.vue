@@ -1,11 +1,11 @@
 <template>
-  <div class="login-container">
-    <div class="login-card">
-      <h1>Retrospective AI</h1>
-      <p class="subtitle">Ingresa tu nombre para comenzar</p>
-      
-      <form @submit.prevent="handleSubmit" class="login-form">
-        <div class="input-group">
+  <div class="container">
+    <h1>Retrospective AI</h1>
+    <div class="cards-container">
+      <div class="card">
+        <h2 class="subtitle">Accede a una retrospectiva</h2>
+        
+        <form @submit.prevent="handleSubmit" class="form">
           <input
             v-model="userName"
             type="text"
@@ -14,52 +14,111 @@
             autofocus
             class="input-field"
           />
-        </div>
+          <input
+            v-model="userEmail"
+            type="text"
+            placeholder="Tu email"
+            required
+            autofocus
+            class="input-field"
+          />
+          <input
+            v-model="retrospectiveID"
+            type="text"
+            placeholder="Id de la retrospectiva"
+            required
+            class="input-field"
+          />
         
-        <button type="submit" class="submit-button" :disabled="!userName.trim()">
-          Continuar
-        </button>
-      </form>
+          <button type="submit" class="submit-button" :disabled="buttonDisabled">
+            Entrar
+          </button>
+        </form>
+      </div>
+      <div class="card">
+
+        <h2 class="subtitle">Crea una nueva retrospectiva</h2>
+        <form @submit.prevent="handleCreateRetrospective" class="form">
+          <input
+            v-model="creatorName"
+            type="text"
+            placeholder="Tu nombre"
+            required
+            autofocus
+            class="input-field"
+          />
+          <input
+            v-model="creatorEmail"
+            type="text"
+            placeholder="Tu email"
+            required
+            autofocus
+            class="input-field"
+          />
+          <button type="submit" class="submit-button">
+            Crear
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 const userName = ref('')
+const userEmail = ref('')
+const retrospectiveID = ref('')
+
+const creatorName = ref('')
+const creatorEmail = ref('')
+
+const buttonDisabled = computed(() => {
+  return !userName.value.trim() || !userEmail.value.trim() || !retrospectiveID.value.trim()
+})
 
 const handleSubmit = () => {
-  if (userName.value.trim()) {
-    // Aquí puedes guardar el nombre del usuario y navegar a otra página
-    // Por ejemplo: navigateTo('/dashboard')
-    console.log('Usuario:', userName.value.trim())
+  if (userName.value.trim() && userEmail.value.trim() && retrospectiveID.value.trim()) {
+    navigateTo(`/retrospective?name=${userName.value.trim()}&email=${userEmail.value.trim()}&id=${retrospectiveID.value.trim()}`)
   }
 }
+
+const handleCreateRetrospective = () => {
+  if (creatorName.value.trim() && creatorEmail.value.trim()) {
+    navigateTo(`/create-retrospective?name=${creatorName.value.trim()}&email=${creatorEmail.value.trim()}`)
+  }
+}
+
 </script>
 
 <style scoped>
-.login-container {
+.container {
   min-height: 100vh;
+  background: linear-gradient(135deg, #9aaae5 0%, #b390d9 100%);
+  padding: 5rem;
+}
+
+.cards-container {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  gap: 5rem;
   padding: 1rem;
 }
 
-.login-card {
+.card {
   background: white;
   border-radius: 16px;
   padding: 3rem;
   width: 100%;
-  max-width: 400px;
+  max-width: 600px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 h1 {
   text-align: center;
-  color: #333;
+  color: #fff;
   font-size: 2rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 5rem;
   font-weight: 700;
 }
 
@@ -67,13 +126,14 @@ h1 {
   text-align: center;
   color: #666;
   margin-bottom: 2rem;
-  font-size: 0.95rem;
+  font-size: 1.2rem;
+  font-weight: bold;
 }
 
-.login-form {
+.form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.5rem;
 }
 
 .input-group {

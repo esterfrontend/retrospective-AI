@@ -127,6 +127,7 @@
 
 <script setup lang="ts">
 import { useGeminiApi } from '~/composables/useGeminiApi';
+import { useMongodbApi } from '~/composables/useMongodbApi';
 
 const route = useRoute()
 const userName = ref(route.query.name as string || 'Usuario')
@@ -164,7 +165,8 @@ const handleAccept = async () => {
     })
     
     if (res.success) {
-      navigateTo(`/retrospective?id=${res.board._id}`);
+      // TODO: Change to the actual board ID
+      navigateTo(`/retrospective-types/columns?id=691603c108d4f1c3211a98df`);
       return
     }
 

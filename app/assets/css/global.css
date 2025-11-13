@@ -14,8 +14,8 @@
 }
 
 /* Remove list styles on ul, ol elements with a list role */
-ul[role='list'],
-ol[role='list'] {
+ul[role="list"],
+ol[role="list"] {
   list-style: none;
 }
 
@@ -31,6 +31,13 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-family: "Lato", sans-serif;
+}
+
+/* Fuente secundaria: Caveat */
+:root {
+  --font-primary: "Lato", sans-serif;
+  --font-secondary: "Caveat", cursive;
 }
 
 /* A elements that don't have a class get default styles */
@@ -116,4 +123,3 @@ h6 {
 p {
   margin: 0;
 }
-

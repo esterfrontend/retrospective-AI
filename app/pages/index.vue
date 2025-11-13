@@ -4,7 +4,6 @@
     <div class="cards-container">
       <div class="card">
         <h2 class="subtitle">Accede a una retrospectiva</h2>
-
         <form @submit.prevent="handleSubmit" class="form">
           <input
             v-model="userName"
@@ -66,6 +65,7 @@
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from '~/stores/user'
 import { useMongodbApi } from '~/composables/useMongodbApi';
 
 const userName = ref("");
@@ -95,11 +95,19 @@ const handleSubmit = async () => {
     return
   }
 
+  const userData = {
+    name,
+    email,
+  }
+
+  useUserStore().setUserData(userData)
+    
+
   try {
     const res = await joinBoard(boardId, { name, email })
     
     if (res.success) {
-      navigateTo(`/retrospective?id=${boardId}`)
+      navigateTo(`/retrospective-types/columns?id=${boardId}`)
       return
     }
 

@@ -126,16 +126,53 @@
 </template>
 
 <script setup lang="ts">
-const route = useRoute();
-const userName = ref((route.query.name as string) || "User");
-const retrospectiveDescription = ref("");
+import { useGeminiApi } from '~/composables/useGeminiApi';
+
+const route = useRoute()
+const userName = ref(route.query.name as string || 'Usuario')
+const userEmail = ref(route.query.email as string || 'Email')
+
+const retrospectiveDescription = ref('')
 
 const { geminiResponse, error, isLoading, fetchGeminiRetrospective } =
   useGeminiApi();
 
 const handleSubmit = async () => {
   if (retrospectiveDescription.value.trim()) {
-    await fetchGeminiRetrospective(retrospectiveDescription.value);
+    console.log('Texto ingresado:', retrospectiveDescription.value.trim())
+
+    if (retrospectiveDescription.value.trim()) {
+      await fetchGeminiRetrospective(retrospectiveDescription.value);
+    }
+
+    // ! Update with Gemini info
+    const __dummyGeminiResponse = {
+      name: 'Retropectiva dormakaba',
+      tempalte: 'columns',
+      columns: [],
+      notes: [],
+      users: [],
+    }
+
+    // Post to MongoDB to create board
+    try {
+      const board = await $fetch('/api/boards/create', {
+        method: 'POST',
+        body: {
+          ...__dummyGeminiResponse, 
+          user: {
+            name: userName.value, 
+            email: userEmail.value
+          } 
+        },
+      }).then(res => {
+        navigateTo(`/retrospective?id=${res.board._id}`)
+      })
+
+
+    } catch (err) {
+      console.error('Error creando tablero:', err)
+    }
   }
 };
 

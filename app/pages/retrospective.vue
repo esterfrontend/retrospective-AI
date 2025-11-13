@@ -1,5 +1,6 @@
 <template>
   <div class="retrospective-container">
+  <pre>{{ board }}</pre>
     <div class="retrospective-card">
       <p class="welcome-message">Hola, <strong>{{ userName }}</strong></p>
       
@@ -24,9 +25,15 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from 'vue';
+
 const route = useRoute()
+
 const userName = ref(route.query.name as string || 'Usuario')
+const retrospectiveID = ref(route.query.id as string || '')
+
 const inputText = ref('')
+const board = ref<any>(null);
 
 const handleSubmit = () => {
   if (inputText.value.trim()) {
@@ -35,6 +42,29 @@ const handleSubmit = () => {
     // Por ejemplo: enviar a una API, guardar en estado, etc.
   }
 }
+
+const loadBoard = async () => {
+  if (!retrospectiveID.value) return
+
+  try {
+    const res: any = await $fetch(`/api/boards`, {
+      method: 'GET',
+      params: { id: retrospectiveID.value }
+    });
+
+    if (res.success) {
+      board.value = res.board
+    } else {
+      navigateTo('/');
+    }
+
+  } catch (err: any) {
+    console.error(err)
+    alert('Error cargando el board')
+  }
+}
+
+onMounted(loadBoard)
 </script>
 
 <style scoped>

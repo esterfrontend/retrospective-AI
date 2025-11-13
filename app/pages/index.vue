@@ -81,15 +81,34 @@ const buttonDisabled = computed(() => {
   );
 });
 
-const handleSubmit = () => {
-  if (
-    userName.value.trim() &&
-    userEmail.value.trim() &&
-    retrospectiveID.value.trim()
-  ) {
-    navigateTo(
-      `/retrospective?name=${userName.value.trim()}&email=${userEmail.value.trim()}&id=${retrospectiveID.value.trim()}`
-    );
+const handleSubmit = async () => {
+  const name = userName.value.trim();
+  const email = userEmail.value.trim();
+  const boardId = retrospectiveID.value.trim();
+
+  if (!name || !email || !boardId) {
+    alert('Please fill in all fields')
+    return
+  }
+
+  try {
+    const res: any = await $fetch(`/api/boards/join`, {
+      method: 'POST',
+      body: {
+        boardId,
+        user: { name, email }
+      }
+    })
+
+    if (!res.success) {
+      alert(res.message || 'Board does not exist')
+      return
+    }
+
+    navigateTo(`/retrospective?id=${boardId}`)
+
+  } catch (err: any) {
+    console.error(err)
   }
 };
 

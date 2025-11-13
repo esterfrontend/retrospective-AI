@@ -28,6 +28,8 @@
 import { onMounted, ref } from 'vue';
 
 const route = useRoute()
+const { createPost } = useMongodbApi();
+
 
 const userName = ref(route.query.name as string || 'Usuario')
 const retrospectiveID = ref(route.query.id as string || '')
@@ -35,11 +37,52 @@ const retrospectiveID = ref(route.query.id as string || '')
 const inputText = ref('')
 const board = ref<any>(null);
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (inputText.value.trim()) {
-    // Aquí puedes procesar el texto ingresado
-    console.log('Texto ingresado:', inputText.value.trim())
-    // Por ejemplo: enviar a una API, guardar en estado, etc.
+
+
+    try {
+      const res = await createPost(
+       retrospectiveID.value, 
+        {
+          content: inputText.value.trim(),
+          userId: userName.value,
+          columnId: 'start'
+        } 
+      )
+      
+      if (res.success) {
+        navigateTo(`/retrospective?id=${retrospectiveID.value}`)
+        return
+      }
+
+      console.warn('Error creating post:', res.message)
+    } catch (err: any) {
+      console.error('[handleSubmit]', err)
+      alert('Error creating post. Please try again later.')
+    }
+
+
+    // try {
+
+
+    //   const res = await $fetch('/api/posts/create', {
+    //     method: 'POST',
+    //     body: {
+    //       boardId: retrospectiveID.value,
+    //       note: {
+    //         content: inputText.value.trim(),
+    //         userId: userName.value,
+    //         columnId: 'start'
+    //       }
+    //     }
+    //   })
+
+    //   inputText.value = ''
+    // } catch (err) {
+    //   console.error('❌ Error al crear la nota:', err)
+    //   alert('Error al crear la nota')
+    // }
   }
 }
 

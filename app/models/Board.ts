@@ -24,7 +24,7 @@ const NoteSchema = new Schema({
 
 export interface IBoard extends Document {
   name: string
-  template: string
+  retoType: string
   columns: { id: string; label: string }[]
   notes: {
     id: string
@@ -40,8 +40,8 @@ export interface IBoard extends Document {
 
 const BoardSchema = new Schema<IBoard>(
   {
-    name: { type: String, required: true },
-    template: { type: String, required: true },
+    name: { type: String },
+    retoType: { type: String, required: true },
     columns: { type: [ColumnSchema], default: [], required: true },
     notes: { type: [NoteSchema], default: [] },
     users: { type: [EmbeddedUserSchema], default: [] },

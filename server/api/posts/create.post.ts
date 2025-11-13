@@ -5,7 +5,7 @@ import Board from '~/models/Board'
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    const { boardId, columnId, userId, content } = body
+    const { boardId, note } = body
 
     if (!boardId || !mongoose.Types.ObjectId.isValid(boardId)) {
         return { success: false, message: 'Invalid retrospective ID' }
@@ -16,11 +16,12 @@ export default defineEventHandler(async (event) => {
         return { success: false, message: 'Invalid retrospective ID' }
     }
 
+    
     const newNote = {
       id: nanoid(),
-      columnId,
-      userId,
-      content: content.trim(),
+      columnId: note.columnId,
+      userId: note.userId,
+      content: note.content,
       createdAt: new Date()
     }
 

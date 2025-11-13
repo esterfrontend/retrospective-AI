@@ -137,42 +137,11 @@ const retrospectiveDescription = ref('')
 const { geminiResponse, error, isLoading, fetchGeminiRetrospective } =
   useGeminiApi();
 
+  const { createBoard } = useMongodbApi();
+
 const handleSubmit = async () => {
   if (retrospectiveDescription.value.trim()) {
-    console.log('Texto ingresado:', retrospectiveDescription.value.trim())
-
-    if (retrospectiveDescription.value.trim()) {
-      await fetchGeminiRetrospective(retrospectiveDescription.value);
-    }
-
-    // ! Update with Gemini info
-    const __dummyGeminiResponse = {
-      name: 'Retropectiva dormakaba',
-      tempalte: 'columns',
-      columns: [],
-      notes: [],
-      users: [],
-    }
-
-    // Post to MongoDB to create board
-    try {
-      const board = await $fetch('/api/boards/create', {
-        method: 'POST',
-        body: {
-          ...__dummyGeminiResponse, 
-          user: {
-            name: userName.value, 
-            email: userEmail.value
-          } 
-        },
-      }).then(res => {
-        navigateTo(`/retrospective?id=${res.board._id}`)
-      })
-
-
-    } catch (err) {
-      console.error('Error creando tablero:', err)
-    }
+    await fetchGeminiRetrospective(retrospectiveDescription.value);
   }
 };
 
@@ -182,8 +151,28 @@ const handleRegenerate = async () => {
   }
 };
 
-const handleAccept = () => {
-  // Empty void function for now
+const handleAccept = async () => {
+
+  try {
+    const res = await createBoard({
+      name: 'dummy',
+      ...geminiResponse.value!.data, 
+      user: { 
+        name: userName.value, 
+        email: userEmail.value 
+      },
+    })
+    
+    if (res.success) {
+      navigateTo(`/retrospective?id=${res.board._id}`);
+      return
+    }
+
+    console.warn('Error creating board:', res.message)
+  } catch (err: any) {
+    console.error('[handleSubmit]', err)
+    alert('Error creating board. Please try again later.')
+  }
 };
 </script>
 

@@ -12,5 +12,11 @@ export default defineNuxtConfig({
         }
       ]
     }
+  },
+  runtimeConfig: {
+    geminiApiKey: process.env.GEMINI_API_KEY,
+    public: {
+      // Public runtime config (exposed to client-side)
+    }
   }
 })

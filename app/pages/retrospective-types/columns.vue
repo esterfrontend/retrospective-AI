@@ -1,6 +1,6 @@
 <template>
   <div class="retrospective-container">   
-      <div v-for="column in typeColumnsMock.data.columns" :key="column.id" :class="['retrospective-column', `column-${column.id}`]">
+      <div v-for="column in typeColumnsMock.data.notes" :key="column.id" :class="['retrospective-column', `column-${column.id}`]">
         <form @submit.prevent="handleSubmit(column.id)" class="retrospective-form">
           <h2 class="column-title" :style="{ 'color': column.color }">{{ column.label }}</h2>
           <p class="column-description">{{ column.description }}</p>
@@ -66,10 +66,15 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from 'vue';
 import { typeColumnsMock } from '~/mocks/typeColumns.mock'
 
+const route = useRoute()
 const userName = useUserStore().getName
 
+const retrospectiveID = ref(route.query.id as string || '')
+
+const board = ref<any>(null);
 const inputText = ref<Record<string, string>>({})
 const cardRefs = ref<Record<string, HTMLElement>>({})
 const cardHeights = ref<Record<string, number>>({})
@@ -120,6 +125,29 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('resize', setCardMinHeight)
 })
+
+const loadBoard = async () => {
+  if (!retrospectiveID.value) return
+
+  try {
+    const res: any = await $fetch(`/api/boards`, {
+      method: 'GET',
+      params: { id: retrospectiveID.value }
+    });
+
+    if (res.success) {
+      board.value = res.board
+    } else {
+      navigateTo('/');
+    }
+
+  } catch (err: any) {
+    console.error(err)
+    alert('Error cargando el board')
+  }
+}
+
+onMounted(loadBoard)
 </script>
 
 <style scoped>

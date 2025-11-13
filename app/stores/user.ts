@@ -1,36 +1,37 @@
-import { defineStore } from 'pinia'
+import { defineStore } from "pinia";
 
 export interface UserData {
-  name: string
-  email: string
+  name: string;
+  email: string;
 }
 
-export const useUserStore = defineStore('retrospective', {
+export const useUserStore = defineStore("user", {
   state: () => ({
-    userData: null as UserData | null
+    userData: null as UserData | null,
   }),
 
   getters: {
-    getName: (state) => state.userData?.name || '',
-    getEmail: (state) => state.userData?.email || '',
+    getName: (state) => state.userData?.name || "",
+    getEmail: (state) => state.userData?.email || "",
   },
 
   actions: {
     setUserData(data: UserData) {
-      this.userData = { ...this.userData, ...data }
+      this.userData = { ...this.userData, ...data };
     },
 
     updateUserData(updates: Partial<UserData>) {
       if (this.userData) {
-        this.userData = { ...this.userData, ...updates }
+        this.userData = { ...this.userData, ...updates };
       } else {
-        this.userData = updates as UserData
+        this.userData = updates as UserData;
       }
     },
 
     clearUserData() {
-      this.userData = null
-    }
-  }
-})
+      this.userData = null;
+    },
+  },
 
+  persist: true,
+});

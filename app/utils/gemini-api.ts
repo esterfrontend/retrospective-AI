@@ -1,5 +1,8 @@
 import type { GeminiResponse, GeminiSummaryResponse } from "~/models/gemini";
-import { getMockGeminiResponse } from "./mocks";
+import {
+  getMockGeminiResponse,
+  getMockGeminiSummaryResponse,
+} from "./mocks";
 
 export const fetchGeminiSuggestion = async (
   prompt: string
@@ -40,12 +43,27 @@ export const fetchGeminiSummary = async (
     throw new Error("Retrospective data is required");
   }
 
-  const response = await $fetch<GeminiSummaryResponse>("/api/gemini-summary", {
-    method: "POST",
-    body: {
-      retrospectiveData,
-    },
-  });
-  console.log("Gemini Summary Response:", response);
-  return response;
+  try {
+    const response = await $fetch<GeminiSummaryResponse>("/api/gemini-summary", {
+      method: "POST",
+      body: {
+        retrospectiveData,
+      },
+    });
+    console.log("Gemini Summary Response:", response);
+    return response;
+  } catch (err: any) {
+    const errorMessage = err?.data?.message || err?.message || "Unknown error";
+
+    // Check if it's the overloaded error and return mock response
+    if (
+      errorMessage.toLowerCase().includes("overloaded") ||
+      errorMessage.toLowerCase().includes("try again later")
+    ) {
+      console.log("Model overloaded, returning mock summary response");
+      return getMockGeminiSummaryResponse();
+    }
+
+    throw new Error(errorMessage);
+  }
 };

@@ -140,9 +140,10 @@ const handleRegenerate = async () => {
   }
 };
 
-const handleAccept = () => {
-  // Empty void function for now
-};
+const router = useRouter();
+const retrospectiveStore = useRetrospectiveStore();
+
+const handleAccept = () => {};
 </script>
 
 <style scoped>

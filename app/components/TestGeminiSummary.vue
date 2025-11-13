@@ -1,18 +1,16 @@
 <template>
   <div class="card">
-    <h2 class="subtitle">Test Gemini Summary</h2>
+    <h2 class="subtitle">AI-Powered Summary</h2>
     <div class="form">
       <div class="test-section">
-        <p class="test-description">
-          {{ dummyRetrospectiveData }}
-        </p>
+        <p class="test-description"></p>
         <button
           type="button"
           @click="handleTestGeminiSummary"
           class="test-button"
           :disabled="isLoading"
         >
-          {{ isLoading ? "Loading..." : "Test Gemini Summary API" }}
+          {{ isLoading ? "Loading..." : "Generate Summary" }}
         </button>
       </div>
 
@@ -90,10 +88,31 @@
 </template>
 
 <script setup lang="ts">
+import type { RetrospectiveData } from "~/models/retrospective";
+import type { IBoard } from "~/models/Board";
+
+type Props = {
+  retrospectiveData?: RetrospectiveData | null;
+  board?: IBoard | null | any; // Using any to handle mongoose document types
+  notes?: Array<{
+    id: string;
+    columnId: string;
+    userId: string;
+    content: string;
+    createdAt: string;
+  }> | null;
+};
+
+const props = withDefaults(defineProps<Props>(), {
+  retrospectiveData: null,
+  board: null,
+  notes: null,
+});
+
 const { geminiSummaryResponse, error, isLoading, fetchGeminiSummary } =
   useGeminiApi();
 
-// Dummy retrospective data for testing
+// Dummy retrospective data for testing (fallback)
 const dummyRetrospectiveData = {
   id: "retro_123",
   template: "start_stop_continue",
@@ -127,8 +146,48 @@ const dummyRetrospectiveData = {
   ],
 };
 
+// Compute the retrospective data to use
+const retrospectiveDataToUse = computed(() => {
+  // If retrospectiveData prop is provided, use it
+  if (props.retrospectiveData) {
+    return props.retrospectiveData;
+  }
+
+  // If board and notes are provided, transform them
+  if (props.board && props.notes) {
+    const board = props.board as IBoard;
+    // Handle mongoose _id or regular id
+    const boardAny = board as any;
+    const boardId = boardAny._id
+      ? String(boardAny._id)
+      : boardAny.id || `board-${Date.now()}`;
+
+    return {
+      id: boardId,
+      template: board.retoType,
+      columns: board.columns.map((col) => ({
+        id: col.id,
+        label: col.label,
+      })),
+      notes: props.notes.map((note) => ({
+        id: note.id,
+        columnId: note.columnId,
+        userId: note.userId,
+        content: note.content,
+        createdAt:
+          typeof note.createdAt === "string"
+            ? note.createdAt
+            : new Date(note.createdAt).toISOString(),
+      })),
+    };
+  }
+
+  // Fallback to dummy data
+  return dummyRetrospectiveData;
+});
+
 const handleTestGeminiSummary = async () => {
-  await fetchGeminiSummary(dummyRetrospectiveData);
+  await fetchGeminiSummary(retrospectiveDataToUse.value);
 };
 </script>
 

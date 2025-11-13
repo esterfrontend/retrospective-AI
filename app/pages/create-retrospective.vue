@@ -126,19 +126,20 @@
 </template>
 
 <script setup lang="ts">
-import { useGeminiApi } from '~/composables/useGeminiApi';
-import { useMongodbApi } from '~/composables/useMongodbApi';
+import { useGeminiApi } from "~/composables/useGeminiApi";
+import { useMongodbApi } from "~/composables/useMongodbApi";
+import { RETRO_TYPES } from "~/models/retrospective";
 
-const route = useRoute()
-const userName = ref(route.query.name as string || 'Usuario')
-const userEmail = ref(route.query.email as string || 'Email')
+const route = useRoute();
+const userName = ref((route.query.name as string) || "Usuario");
+const userEmail = ref((route.query.email as string) || "Email");
 
-const retrospectiveDescription = ref('')
+const retrospectiveDescription = ref("");
 
 const { geminiResponse, error, isLoading, fetchGeminiRetrospective } =
   useGeminiApi();
 
-  const { createBoard } = useMongodbApi();
+const { createBoard } = useMongodbApi();
 
 const handleSubmit = async () => {
   if (retrospectiveDescription.value.trim()) {
@@ -153,27 +154,30 @@ const handleRegenerate = async () => {
 };
 
 const handleAccept = async () => {
-
+  console.log(geminiResponse.value!.data);
   try {
     const res = await createBoard({
-      name: 'dummy',
-      ...geminiResponse.value!.data, 
-      user: { 
-        name: userName.value, 
-        email: userEmail.value 
+      name: "dummy",
+      ...geminiResponse.value!.data,
+      user: {
+        name: userName.value,
+        email: userEmail.value,
       },
-    })
-    
+    });
+
+    const type = geminiResponse.value?.data?.retoType || RETRO_TYPES.COLUMNS;
+    console.log(res);
+
     if (res.success) {
       // TODO: Change to the actual board ID
-      navigateTo(`/retrospective-types/columns?id=691603c108d4f1c3211a98df`);
-      return
+      navigateTo(`/retrospective-types/${type}?id=${(res.board as any)._id}`);
+      return;
     }
 
-    console.warn('Error creating board:', res.message)
+    console.warn("Error creating board:", res.message);
   } catch (err: any) {
-    console.error('[handleSubmit]', err)
-    alert('Error creating board. Please try again later.')
+    console.error("[handleSubmit]", err);
+    alert("Error creating board. Please try again later.");
   }
 };
 </script>

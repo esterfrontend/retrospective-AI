@@ -13,7 +13,6 @@
           <p class="quadrant-description">{{ quadrant.description }}</p>
         </div>
         <div class="quadrant-content" :key="refreshForces">
-          {{ quadrant.id }}
           <div
             v-for="note in getNotesForQuadrant(quadrant.id)"
             :key="note.id"

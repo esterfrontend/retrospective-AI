@@ -1,6 +1,5 @@
 <template>
   <div class="quadrant-space">
-    <p>holi</p>
     <div class="quadrant-grid">
       <div
         v-for="(quadrant, index) in quadrants"
@@ -160,20 +159,17 @@ const handleNoteBlur = async (noteId: string): Promise<void> => {
     return;
   }
 
-  // TODO NOT WORKING
-  // try {
-  //   const response = await createPost(boardId, {
-  //     content: note.content,
-  //     userId: note.userId,
-  //     columnId: note.columnId,
-  //   });
-
-  //   if (response.success) {
-  //     console.log("Note saved successfully", response);
-  //   }
-  // } catch (error) {
-  //   console.error("[addNote]", error);
-  // }
+  try {
+    await retrospectiveStore.addNote({
+      id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      columnId: note.columnId,
+      content: note.content?.trim() || "",
+      userId: note.userId || "",
+      createdAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("[addNote]", error);
+  }
 };
 
 const retrospectiveStore = useRetrospectiveStore();
@@ -186,7 +182,6 @@ onMounted(() => {
 watch(
   () => notes.length,
   () => {
-    console.log("notes length", notes.length);
     const newNotes = filterNewNotes(notes, localNotes.value);
     if (newNotes.length > 0) {
       localNotes.value.push(...newNotes);

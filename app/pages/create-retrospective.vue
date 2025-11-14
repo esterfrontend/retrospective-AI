@@ -156,7 +156,6 @@ const handleRegenerate = async () => {
 };
 
 const handleAccept = async () => {
-  console.log(geminiResponse.value!.data);
   try {
     const res = await createBoard({
       name: "dummy",

@@ -48,7 +48,7 @@
             }"
           >
             <p class="card-text">{{ post.content }}</p>
-            <p class="card-author">{{ userName }}</p>
+            <p class="card-author">{{ post.userId }}</p>
           </div>
         </div>
       </div>

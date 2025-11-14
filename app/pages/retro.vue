@@ -92,4 +92,33 @@ watch(
   flex-direction: column;
   min-height: 0;
 }
+
+.actions-footer {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e0e0e0;
+}
+
+.log-notes-button {
+  padding: 0.875rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.log-notes-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.log-notes-button:active {
+  transform: translateY(0);
+}
 </style>

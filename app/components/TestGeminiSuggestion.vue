@@ -191,7 +191,7 @@ const handleAccept = () => {};
 }
 
 .test-button {
-  width: 100%;
+  width: auto;
   padding: 0.75rem;
   background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
   color: white;

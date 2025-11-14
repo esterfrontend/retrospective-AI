@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div>
     <h2 class="subtitle">AI-Powered Summary</h2>
     <div class="form">
       <div class="test-section">
@@ -230,7 +230,7 @@ const handleTestGeminiSummary = async () => {
 }
 
 .test-button {
-  width: 100%;
+  width: auto;
   padding: 0.75rem;
   background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
   color: white;
@@ -268,10 +268,12 @@ const handleTestGeminiSummary = async () => {
 }
 
 .response-container {
+  max-width: 800px;
   margin-top: 1rem;
   background: #f5f5f5;
   border-radius: 8px;
   padding: 1rem;
+  text-align: left;
 }
 
 .response-title {

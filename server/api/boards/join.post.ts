@@ -5,7 +5,6 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const { id, user } = body;
 
-  console.log(id);
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return { success: false, message: "Invalid retrospective ID" };

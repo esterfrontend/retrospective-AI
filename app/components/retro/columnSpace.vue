@@ -1,5 +1,5 @@
 <template>
-  <div class="retrospective-container">
+  <div class="column-space-container">
     <div
       v-for="column in boardColumns"
       :key="column.id"
@@ -181,7 +181,8 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.retrospective-container {
+.column-space-container {
+  flex: 1;
   display: flex;
   background: white !important;
   justify-content: center;
@@ -278,6 +279,7 @@ onUnmounted(() => {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
+  flex: none;
 }
 
 .card-wrapper {

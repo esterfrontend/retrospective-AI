@@ -20,12 +20,9 @@ const RetroColumns = resolveComponent("retro-column-space");
 const RetroQuadrant = resolveComponent("retro-quadrant-space");
 
 const COMPONENTS = {
-  [RETRO_TYPES.FREE]: RetroFree,
   [RETRO_TYPES.COLUMNS]: RetroColumns,
   [RETRO_TYPES.QUADRANT]: RetroQuadrant,
 };
-
-console.log("currentBoard", currentBoard.value);
 
 const component = computed(
   () => COMPONENTS[currentBoard.value?.retroType as keyof typeof COMPONENTS]
@@ -129,17 +126,24 @@ watch(
     <div class="retrospective-board" v-if="currentBoard">
       <component :is="component" :board="currentBoard" :notes="notes" />
       <div class="actions-footer">
+<<<<<<< HEAD
       <button v-if="isAdmin" class="log-notes-button" @click="handleLogNotes">
         Finish retrospective
       </button>
     </div>
+=======
+        <button class="log-notes-button" @click="handleLogNotes">
+          Finish retrospective
+        </button>
+      </div>
+>>>>>>> main
     </div>
   </div>
 </template>
 
 <style scoped>
 .retrospective-container {
-  height: 100vh;
+  min-height: 95vh;
   background: linear-gradient(135deg, #9aaae5 0%, #b390d9 100%);
   padding: 2rem 1rem;
   display: flex;

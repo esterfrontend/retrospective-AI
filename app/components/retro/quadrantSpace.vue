@@ -1,5 +1,6 @@
 <template>
   <div class="quadrant-space">
+    <p>holi</p>
     <div class="quadrant-grid">
       <div
         v-for="(quadrant, index) in quadrants"
@@ -11,7 +12,7 @@
           <h3 class="quadrant-title">{{ quadrant.label }}</h3>
           <p class="quadrant-description">{{ quadrant.description }}</p>
         </div>
-        <div class="quadrant-content">
+        <div class="quadrant-content" :key="refreshForces">
           <div
             v-for="note in getNotesForQuadrant(quadrant.id)"
             :key="note.id"
@@ -27,13 +28,14 @@
               v-model="note.content"
               class="note-content"
               placeholder="New note..."
-              @focus="handleNoteContentFocus(note)"
               rows="3"
+              @blur="handleNoteBlur(note.id)"
             />
             <button
               class="note-delete"
               @click="removeNote(note.id)"
               aria-label="Delete note"
+              v-if="note.userId === userStore.getName"
             >
               ×
             </button>
@@ -57,6 +59,7 @@
 </template>
 
 <script setup lang="ts">
+import type { IBoard } from "~/models/Board";
 import type { RetroColumn, RetroNote } from "~/models/retrospective";
 import { getMockGeminiResponse } from "~/utils/mocks";
 
@@ -69,22 +72,25 @@ type Note = {
   user: string;
 };
 
-type Props = {
-  columns: RetroColumn[];
-};
+const { board, notes } = defineProps<{
+  board: IBoard;
+  notes: RetroNote[];
+}>();
 
-const props = defineProps<Props>();
+const localNotes = ref<RetroNote[]>([] as RetroNote[]);
+const refreshForces = ref<number>(0);
 
 const quadrants = computed(() => {
-  if (props.columns.length >= 4) {
-    return props.columns.slice(0, 4);
+  const columns = board.columns;
+  if (columns?.length >= 4) {
+    return columns.slice(0, 4);
   }
   const mockResponse = getMockGeminiResponse();
   const mockColumns = mockResponse.data?.columns || [];
 
   const defaultQuadrants: RetroColumn[] = [
     ...mockColumns,
-    ...(mockColumns.length < 4
+    ...(mockColumns?.length < 4
       ? [
           {
             id: "action-items",
@@ -99,7 +105,6 @@ const quadrants = computed(() => {
   return defaultQuadrants.slice(0, 4);
 });
 
-const notes = ref<Note[]>([]);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const noteRefs = ref<Map<string, any>>(new Map());
 
@@ -109,20 +114,26 @@ const setNoteRef = (el: HTMLElement | null, noteId: string) => {
   }
 };
 
-const getNotesForQuadrant = (columnId: string): Note[] => {
-  return notes.value.filter((note) => note.columnId === columnId);
+const getNotesForQuadrant = (columnId: string): RetroNote[] => {
+  return localNotes.value.filter((note) => note.columnId === columnId);
 };
 
-const addNote = (columnId: string): void => {
+const addNote = async (columnId: string): Promise<void> => {
   const newNote: Note = {
     id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     columnId,
     content: "",
     user: userStore.getName,
   };
-  notes.value.push(newNote);
 
-  // Focus on the note content for editing
+  localNotes.value.push({
+    id: newNote.id,
+    columnId: newNote.columnId,
+    userId: newNote.user,
+    content: newNote.content,
+    createdAt: new Date().toISOString(),
+  });
+
   nextTick(() => {
     const noteElement = noteRefs.value.get(newNote.id);
     if (noteElement) {
@@ -137,33 +148,71 @@ const addNote = (columnId: string): void => {
 };
 
 const removeNote = (noteId: string): void => {
-  notes.value = notes.value.filter((note) => note.id !== noteId);
+  // REMOVE NOTE
   noteRefs.value.delete(noteId);
 };
 
-const handleNoteContentFocus = (note: Note): void => {
-  // Focus handler - can be used for additional logic if needed
+const route = useRoute();
+const { createPost } = useMongodbApi();
+
+const handleNoteBlur = async (noteId: string): Promise<void> => {
+  const note = notes.find((note: RetroNote) => note.id === noteId);
+  if (!note) return;
+
+  const boardId = (route.query.id as string) || "";
+  if (!boardId) {
+    console.error("[handleNoteBlur] No board ID found in route");
+    return;
+  }
+
+  // TODO NOT WORKING
+  // try {
+  //   const response = await createPost(boardId, {
+  //     content: note.content,
+  //     userId: note.userId,
+  //     columnId: note.columnId,
+  //   });
+
+  //   if (response.success) {
+  //     console.log("Note saved successfully", response);
+  //   }
+  // } catch (error) {
+  //   console.error("[addNote]", error);
+  // }
 };
 
 const retrospectiveStore = useRetrospectiveStore();
 const router = useRouter();
 
 const handleLogNotes = (): void => {
-  // Map notes to RetroNote format
-  const retroNotes: RetroNote[] = notes.value.map((note) => ({
+  const retroNotes: RetroNote[] = notes.map((note: RetroNote) => ({
     id: note.id,
     columnId: note.columnId,
-    userId: note.user || userStore.getName || "",
+    userId: note.userId || userStore.getName || "",
     content: note.content,
     createdAt: new Date().toISOString(),
   }));
 
-  // Save notes to store
   retrospectiveStore.setNotes(retroNotes);
 
-  // Redirect to summary page
   router.push("/summary");
 };
+
+onMounted(() => {
+  localNotes.value = notes;
+});
+
+watch(
+  () => notes.length,
+  () => {
+    console.log("notes length", notes.length);
+    const newNotes = filterNewNotes(notes, localNotes.value);
+    if (newNotes.length > 0) {
+      localNotes.value.push(...newNotes);
+    }
+    refreshForces.value++;
+  }
+);
 </script>
 
 <style scoped>

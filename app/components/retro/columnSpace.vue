@@ -20,7 +20,7 @@
           required
           autofocus
           class="textarea-field"
-        ></textarea>
+        />
         <button
           type="submit"
           class="submit-button"
@@ -57,25 +57,37 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, nextTick, ref, computed } from "vue";
+import { onMounted, onUnmounted, nextTick, ref, computed, watch } from "vue";
 import { useMongodbApi } from "~/composables/useMongodbApi";
 import type { IBoard } from "~/models/Board";
+import type { RetroNote } from "~/models/retrospective";
 
+const retrospectiveStore = useRetrospectiveStore();
+const userStore = useUserStore();
 const route = useRoute();
-const { createPost, getBoardById } = useMongodbApi();
 
-const userName = useUserStore().getName;
+const { board, notes } = defineProps<{
+  board: IBoard;
+  notes: RetroNote[];
+}>();
+
+const userName = computed(() => userStore.getName);
 
 const retrospectiveID = ref((route.query.id as string) || "");
 
-const board = ref<IBoard | null>(null);
 const inputTexts = ref<Record<string, string>>({});
 const cardRefs = ref<Record<string, HTMLElement>>({});
 const cardHeights = ref<Record<string, number>>({});
 
+watch(
+  () => board,
+  (newBoard) => nextTick(() => setCardMinHeight()),
+  { immediate: true }
+);
+
 const boardColumns = computed(() => {
-  if (!board.value?.columns) return [];
-  return board.value.columns.map((col: any) => ({
+  if (!board?.columns) return [];
+  return board.columns.map((col: any) => ({
     id: col.id,
     label: col.label,
     description: col.description || "",
@@ -84,8 +96,8 @@ const boardColumns = computed(() => {
 });
 
 const posts = computed(() => {
-  if (!board.value?.notes) return [];
-  return board.value.notes.map((note: any) => ({
+  if (!notes) return [];
+  return notes.map((note: any) => ({
     id: note.id,
     content: note.content,
     userId: note.userId,
@@ -109,29 +121,15 @@ const getPostsByColumnId = (columnId: string) => {
 };
 
 const handleCreatePost = async (columnId: string) => {
-  const text = inputTexts.value[columnId];
-  if (!text?.trim()) return;
+  await retrospectiveStore.addNote({
+    id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    columnId,
+    content: inputTexts.value[columnId] || "",
+    userId: userName.value || "",
+    createdAt: new Date().toISOString(),
+  });
 
-  try {
-    console.log(retrospectiveID.value, text.trim(), userName, columnId);
-    const res = await createPost(retrospectiveID.value, {
-      content: text.trim(),
-      userId: userName || "Test User",
-      columnId,
-    });
-
-    if (res.success) {
-      inputTexts.value[columnId] = "";
-      await loadBoard();
-    } else {
-      console.warn("Error creating post:", res.message);
-      console.warn("Error creating post:", res);
-      // alert('Error creating post. Please try again later.')
-    }
-  } catch (err: any) {
-    console.error("[handleCreatePost]", err);
-    alert("Error creating post. Please try again later.");
-  }
+  inputTexts.value[columnId] = "";
 };
 
 const setCardRef = (
@@ -172,28 +170,7 @@ const setCardMinHeight = () => {
   });
 };
 
-const loadBoard = async () => {
-  if (!retrospectiveID.value) return;
-
-  try {
-    const res: any = await getBoardById(retrospectiveID.value);
-
-    if (res.success) {
-      board.value = res.board;
-      nextTick(() => {
-        setCardMinHeight();
-      });
-    } else {
-      navigateTo("/");
-    }
-  } catch (err: any) {
-    console.error(err);
-    alert("Error cargando el board");
-  }
-};
-
 onMounted(() => {
-  loadBoard();
   setCardMinHeight();
   window.addEventListener("resize", setCardMinHeight);
 });
@@ -205,11 +182,10 @@ onUnmounted(() => {
 
 <style scoped>
 .retrospective-container {
-  min-height: 100vh;
   display: flex;
-  align-items: stretch;
+  background: white !important;
   justify-content: center;
-  flex-direction: row;
+  flex-direction: row !important;
   gap: 2%;
   padding: 2rem 1rem;
 }

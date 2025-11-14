@@ -51,7 +51,7 @@ const handleSubmit = () => {
     // Por ejemplo: enviar a una API, guardar en estado, etc.
 
     // You can also access the current retrospective data:
-    // retrospectiveStore.current contains: retoType, columns, instructions, suggestions, metadata
+    // retrospectiveStore.current contains: retroType, columns, instructions, suggestions, metadata
     if (retrospectiveStore.hasCurrent && retrospectiveStore.current) {
       console.log("Current retrospective:", retrospectiveStore.current);
     }

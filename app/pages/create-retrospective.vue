@@ -165,12 +165,12 @@ const handleAccept = async () => {
       },
     });
 
-    const type = geminiResponse.value?.data?.retoType || RETRO_TYPES.COLUMNS;
+    const type = geminiResponse.value?.data?.retroType || RETRO_TYPES.COLUMNS;
     console.log(res);
 
     if (res.success) {
       // TODO: Change to the actual board ID
-      navigateTo(`/retrospective-types/${type}?id=${(res.board as any)._id}`);
+      navigateTo(`/retro?id=${(res.board as any)._id}`);
       return;
     }
 

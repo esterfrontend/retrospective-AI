@@ -93,7 +93,7 @@ import type { IBoard } from "~/models/Board";
 
 type Props = {
   retrospectiveData?: RetrospectiveData | null;
-  board?: IBoard | null | any; // Using any to handle mongoose document types
+  board?: IBoard | null | any;
   notes?: Array<{
     id: string;
     columnId: string;
@@ -112,7 +112,6 @@ const props = withDefaults(defineProps<Props>(), {
 const { geminiSummaryResponse, error, isLoading, fetchGeminiSummary } =
   useGeminiApi();
 
-// Dummy retrospective data for testing (fallback)
 const dummyRetrospectiveData = {
   id: "retro_123",
   template: "start_stop_continue",
@@ -146,9 +145,7 @@ const dummyRetrospectiveData = {
   ],
 };
 
-// Compute the retrospective data to use
 const retrospectiveDataToUse = computed(() => {
-  // If retrospectiveData prop is provided, use it
   if (props.retrospectiveData) {
     return props.retrospectiveData;
   }
@@ -164,7 +161,7 @@ const retrospectiveDataToUse = computed(() => {
 
     return {
       id: boardId,
-      template: board.retoType,
+      template: board.retroType,
       columns: board.columns.map((col) => ({
         id: col.id,
         label: col.label,

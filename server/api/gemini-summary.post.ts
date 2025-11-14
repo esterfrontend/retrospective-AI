@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { RetroColumn } from "~/models/retrospective";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
@@ -94,7 +95,7 @@ Guidelines:
 
     // Format the retrospective data for the prompt
     const columnsInfo = retrospectiveData.columns
-      .map((col: { id: string; label: string }) => `- ${col.label} (${col.id})`)
+      .map((col: RetroColumn) => `- ${col.label} (${col.id})`)
       .join("\n");
 
     const notesByColumn: Record<string, any[]> = {};

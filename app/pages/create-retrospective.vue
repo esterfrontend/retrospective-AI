@@ -128,9 +128,11 @@
 <script setup lang="ts">
 import { useGeminiApi } from "~/composables/useGeminiApi";
 import { useMongodbApi } from "~/composables/useMongodbApi";
+import type { IBoard } from "~/models/Board";
 import { RETRO_TYPES } from "~/models/retrospective";
 
 const route = useRoute();
+const retrospectiveStore = useRetrospectiveStore();
 const userName = ref((route.query.name as string) || "Usuario");
 const userEmail = ref((route.query.email as string) || "Email");
 
@@ -169,7 +171,7 @@ const handleAccept = async () => {
     console.log(res);
 
     if (res.success) {
-      // TODO: Change to the actual board ID
+      retrospectiveStore.setCurrent(res.board as unknown as IBoard);
       navigateTo(`/retro?id=${(res.board as any)._id}`);
       return;
     }

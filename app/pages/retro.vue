@@ -2,6 +2,8 @@
 import { RETRO_TYPES, type RetroNote } from "~/models/retrospective";
 
 const route = useRoute();
+const router = useRouter();
+
 const retrospectiveStore = useRetrospectiveStore();
 
 const noteList = ref<RetroNote[]>([]);
@@ -18,10 +20,7 @@ const COMPONENTS = {
   [RETRO_TYPES.QUADRANT]: RetroQuadrant,
 };
 
-console.log(
-  "type of board",
-  COMPONENTS[currentBoard.value?.retroType as keyof typeof COMPONENTS]
-);
+console.log("currentBoard", currentBoard.value);
 
 const component = computed(
   () => COMPONENTS[currentBoard.value?.retroType as keyof typeof COMPONENTS]
@@ -33,6 +32,10 @@ const setIntervalRefreshBoard = () => {
   setInterval(() => {
     retrospectiveStore.refreshBoard();
   }, 8000);
+};
+
+const handleLogNotes = (): void => {
+  router.push("/summary");
 };
 
 onMounted(async () => {
@@ -58,6 +61,11 @@ watch(
   <div class="retrospective-container">
     <div class="retrospective-board" v-if="currentBoard">
       <component :is="component" :board="currentBoard" :notes="notes" />
+      <div class="actions-footer">
+      <button class="log-notes-button" @click="handleLogNotes">
+        Finish retrospective
+      </button>
+    </div>
     </div>
   </div>
 </template>

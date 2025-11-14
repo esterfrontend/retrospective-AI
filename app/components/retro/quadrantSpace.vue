@@ -50,11 +50,7 @@
         </button>
       </div>
     </div>
-    <div class="actions-footer">
-      <button class="log-notes-button" @click="handleLogNotes">
-        Finish retrospective
-      </button>
-    </div>
+    
   </div>
 </template>
 
@@ -183,20 +179,6 @@ const handleNoteBlur = async (noteId: string): Promise<void> => {
 
 const retrospectiveStore = useRetrospectiveStore();
 const router = useRouter();
-
-const handleLogNotes = (): void => {
-  const retroNotes: RetroNote[] = notes.map((note: RetroNote) => ({
-    id: note.id,
-    columnId: note.columnId,
-    userId: note.userId || userStore.getName || "",
-    content: note.content,
-    createdAt: new Date().toISOString(),
-  }));
-
-  retrospectiveStore.setNotes(retroNotes);
-
-  router.push("/summary");
-};
 
 onMounted(() => {
   localNotes.value = notes;

@@ -58,7 +58,6 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, nextTick, ref, computed, watch } from "vue";
-import { useMongodbApi } from "~/composables/useMongodbApi";
 import type { IBoard } from "~/models/Board";
 import type { RetroNote } from "~/models/retrospective";
 
@@ -72,8 +71,6 @@ const { board, notes } = defineProps<{
 }>();
 
 const userName = computed(() => userStore.getName);
-
-const retrospectiveID = ref((route.query.id as string) || "");
 
 const inputTexts = ref<Record<string, string>>({});
 const cardRefs = ref<Record<string, HTMLElement>>({});
@@ -121,10 +118,13 @@ const getPostsByColumnId = (columnId: string) => {
 };
 
 const handleCreatePost = async (columnId: string) => {
+  const text = inputTexts.value[columnId];
+  if (!text?.trim()) return;
+
   await retrospectiveStore.addNote({
     id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     columnId,
-    content: inputTexts.value[columnId] || "",
+    content: text?.trim() || "",
     userId: userName.value || "",
     createdAt: new Date().toISOString(),
   });

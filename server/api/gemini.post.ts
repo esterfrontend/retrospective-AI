@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const RETRO_TYPES = ["columns", "quadrant", "free"] as const;
+const RETRO_TYPES = ["columns", "quadrant"] as const;
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
@@ -45,7 +45,7 @@ CRITICAL: You MUST respond ONLY with valid JSON in the following exact structure
   }
 }
 
-The retroType MUST be one of these 3 constant dynamics (choose the most appropriate based on the team's needs and the prompt):
+The retroType MUST be one of these 2 constant dynamics (choose the most appropriate based on the team's needs and the prompt):
 
 1. "columns" - Linear column layout for sequential or categorized feedback
    - Use for: Start/Stop/Continue, Mad/Sad/Glad, or any linear categorization
@@ -57,17 +57,10 @@ The retroType MUST be one of these 3 constant dynamics (choose the most appropri
    - Columns: MUST have exactly 4 columns arranged in a 2x2 grid
    - Create dynamic labels based on the prompt (e.g., "liked", "learned", "lacked", "longed" OR custom quadrant labels)
    - Layout: "horizontal" or "vertical" depending on the context
-   
-3. "free" - Visual representation with thematic elements
-   - Use for: Sailboat (wind, anchor, rocks, island), Speed Car, or other visual metaphors
-   - Columns: Create 3-5 columns with dynamic labels that represent visual elements
-   - Examples: For sailboat use "wind", "anchor", "rocks", "island". For other images, create appropriate thematic labels.
-   - Layout: Typically "horizontal" for free/visual retrospectives
 
 IMPORTANT: The column labels (id and label) are DYNAMIC and should be created based on the user's prompt and the chosen dynamic. Do not use fixed labels - be creative and contextually appropriate. The number of columns should match the dynamic:
 - "columns": 2-5 columns
 - "quadrant": exactly 4 columns
-- "free": 3-5 columns
 
 Each column MUST include a "color" field. Use hex color codes (e.g., "#3B82F6" for blue, "#10B981" for green) or standard color names. Choose distinct, visually appealing colors that complement each other and match the column's theme or emotion. For example:
 - Positive columns (Start, Liked): use warm/positive colors like green (#10B981), blue (#3B82F6), or purple (#8B5CF6)
@@ -148,18 +141,6 @@ Based on the user's prompt, select the most appropriate retroType and create dyn
         throw createError({
           statusCode: 500,
           message: "Columns retroType must have between 2 and 5 columns",
-        });
-      }
-    }
-
-    if (parsedResponse.retroType === "free") {
-      if (
-        parsedResponse.columns.length < 3 ||
-        parsedResponse.columns.length > 5
-      ) {
-        throw createError({
-          statusCode: 500,
-          message: "Free retroType must have between 3 and 5 columns",
         });
       }
     }

@@ -75,14 +75,12 @@ export const useMongodbApi = () => {
     loading.value = true;
     error.value = null;
 
-    console.log("createPost", boardId, note);
     try {
       const res = await $fetch("/api/posts/create", {
         method: "POST",
         body: { boardId, note },
       });
 
-      console.log("createPost response", res);
       return res;
     } catch (err: any) {
       console.error("[useMongodbApi:createPost]", err);

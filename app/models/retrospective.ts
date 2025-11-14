@@ -1,7 +1,6 @@
 export const RETRO_TYPES = {
   COLUMNS: "columns",
   QUADRANT: "quadrant",
-  FREE: "free",
 } as const;
 
 export type RetroType = (typeof RETRO_TYPES)[keyof typeof RETRO_TYPES];

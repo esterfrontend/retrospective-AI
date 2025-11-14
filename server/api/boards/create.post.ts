@@ -2,7 +2,7 @@ import Board, { type IBoard } from '~/models/Board'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const { name, retroType, columns, user } = body
+  const { name, retroType, columns, user, admin } = body
 
   try {
     // Create board
@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
       name,
       retroType,
       columns,
+      admin,
       users: [],
       notes: []
     })

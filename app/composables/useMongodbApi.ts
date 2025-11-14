@@ -16,6 +16,7 @@ export const useMongodbApi = () => {
           name: data.name || "Untitled Retrospective",
           retroType: data.retroType || "columns",
           columns: data.columns ? [...data.columns] : [],
+          admin: data.user.email,
           user: data.user,
         },
       });

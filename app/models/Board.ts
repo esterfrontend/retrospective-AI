@@ -51,6 +51,7 @@ export interface IBoard extends Document {
     createdAt: Date;
   }[];
   users: IEmbeddedUser[];
+  admin: string,
   createdAt: Date;
   updatedAt: Date;
 }
@@ -62,6 +63,7 @@ const BoardSchema = new Schema<IBoard>(
     columns: { type: [ColumnSchema], default: [], required: true },
     notes: { type: [NoteSchema], default: [] },
     users: { type: [EmbeddedUserSchema], default: [] },
+    admin: { type: String, required: true }
   },
   { timestamps: true }
 );

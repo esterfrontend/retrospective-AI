@@ -67,6 +67,7 @@
 <script setup lang="ts">
 import { useUserStore } from "~/stores/user";
 import { useMongodbApi } from "~/composables/useMongodbApi";
+import type { IBoard } from "~/models/Board";
 
 const userStore = useUserStore();
 
@@ -79,7 +80,7 @@ const creatorName = ref("");
 const creatorEmail = ref("");
 
 const { joinBoard } = useMongodbApi();
-
+const retrospectiveStore = useRetrospectiveStore();
 const buttonDisabled = computed(() => {
   return (
     !userName.value.trim() ||
@@ -110,6 +111,7 @@ const handleSubmit = async () => {
   try {
     const res = await joinBoard(boardId, { name, email });
 
+    retrospectiveStore.setNewBoard(res.board as unknown as IBoard);
     if (res.success) {
       navigateTo(`/retro?id=${boardId}`);
       return;

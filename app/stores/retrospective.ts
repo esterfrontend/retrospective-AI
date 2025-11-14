@@ -45,6 +45,11 @@ export const useRetrospectiveStore = defineStore("retrospective", {
       }
     },
 
+    setNewBoard(board: IBoard): void {
+      this.current = board;
+      this.setNotes(board.notes as unknown as RetroNote[]);
+    },
+
     // TODO DELETE NOTES
 
     async addNote(note: RetroNote): Promise<void> {

@@ -167,11 +167,8 @@ const handleAccept = async () => {
       },
     });
 
-    const type = geminiResponse.value?.data?.retroType || RETRO_TYPES.COLUMNS;
-    console.log(res);
-
     if (res.success) {
-      retrospectiveStore.setCurrent(res.board as unknown as IBoard);
+      retrospectiveStore.setNewBoard(res.board as unknown as IBoard);
       navigateTo(`/retro?id=${(res.board as any)._id}`);
       return;
     }

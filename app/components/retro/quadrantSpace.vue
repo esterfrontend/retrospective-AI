@@ -172,6 +172,8 @@ const handleNoteBlur = async (noteId: string): Promise<void> => {
       return;
     }
 
+    localNotes.value.pop();
+
     try {
       await retrospectiveStore.addNote({
         id: note.id,
@@ -186,7 +188,7 @@ const handleNoteBlur = async (noteId: string): Promise<void> => {
       isProcessingBlur.value.delete(noteId);
       blurTimeouts.value.delete(noteId);
     }
-  }, 300); // 300ms debounce delay
+  }, 300);
 
   blurTimeouts.value.set(noteId, timeout);
 };
@@ -198,10 +200,7 @@ onMounted(() => {
 watch(
   () => notes.length,
   () => {
-    const newNotes = filterNewNotes(notes, localNotes.value);
-    if (newNotes.length > 0) {
-      localNotes.value.push(...newNotes);
-    }
+    localNotes.value = notes;
     refreshForces.value++;
   }
 );
